@@ -32,27 +32,6 @@ subnet_id = config('SUBNET_ID')
 
 ssh_key = config('SSH_KEY')
 
-# Telegram setting
-# https://medium.com/@ManHay_Hong/how-to-create-a-telegram-bot-and-send-messages-with-python-4cf314d9fa3e
-# Create bot with BotFather, get the API key
-# Start the bot via conversation/chat with command /start
-# Get chat_id: https://api.telegram.org/bot<yourtoken>/getUpdates   if not get chat_id, chat some thing to the bot and retry
-# Start a chat with your bot, add [@get_id_bot](https://telegram.me/get_id_bot), and issue the `/my_id` command
-session = requests.Session()
-bot_api = '*******'
-chat_id = '*******'
-######################################################################################################################
-
-def telegram_notify(session, bot_api, chat_id, message):
-    '''Notify via telegram'''
-    try:
-        print("\n\n\n\nTelegram mock status:")        
-        # Enable the following line if you want it send messages on bot
-        # session.get(
-        #     f'https://api.telegram.org/bot{bot_api}/sendMessage?chat_id={chat_id}&text={message}')
-    except:
-        logging.info("Message fail to sent via telegram")
-
 #######################################################################################################################
 logging.info("#####################################################")
 logging.info("Script to spawn VM.Standard.A1.Flex instance")
@@ -60,7 +39,7 @@ logging.info("Script to spawn VM.Standard.A1.Flex instance")
 
 message = f'Start spawning instance VM.Standard.A1.Flex - {ocpus} ocpus - {memory_in_gbs} GB'
 logging.info(message)
-telegram_notify(session, bot_api, chat_id, message)
+print(f"{message}\n\n\n\n") 
 
 # Loading config file
 logging.info("Loading OCI config")
@@ -73,7 +52,7 @@ to_launch_instance = oci.core.ComputeClient(config)
 
 message = f"Instance to create: VM.Standard.A1.Flex - {ocpus} ocpus - {memory_in_gbs} GB"
 logging.info(message)
-telegram_notify(session, bot_api, chat_id, message)
+print(f"{message}\n\n\n\n") 
 
 ###########################       Check current existing instance(s) in account         ##############################
 logging.info("Check current instances in account")
@@ -98,33 +77,33 @@ if response:
 
     message = f"Current: {_A1_Flex} active VM.Standard.A1.Flex instance(s) (including RUNNING OR STOPPED)"
     logging.info(message)
-    telegram_notify(session, bot_api, chat_id, message)
+    print(f"{message}\n\n\n\n") 
 else:
     logging.info(f"No instance(s) found!")
 
 
 message = f"Total ocpus: {total_ocpus} - Total memory: {total_memory} (GB) || Free {4-total_ocpus} ocpus - Free memory: {24-total_memory} (GB)"
 logging.info(message)
-telegram_notify(session, bot_api, chat_id, message)
+print(f"{message}\n\n\n\n") 
 
 
 # Pre-check to verify total resource of current VM.Standard.A1.Flex (max 4 ocpus/24GB ram)
 if total_ocpus + ocpus > 4 or total_memory + memory_in_gbs > 24:
     message = "Total maximum resource exceed free tier limit (Over 4 ocpus/24GB total). **SCRIPT STOPPED**"
     logging.critical(message)
-    telegram_notify(session, bot_api, chat_id, message)
+    print(f"{message}\n\n\n\n") 
     sys.exit()
 
 # Check for duplicate display name
 if instance_display_name in instance_names:
     message = f"Duplicate display name: >>>{instance_display_name}<<< Change this! **SCRIPT STOPPED**"
     logging.critical(message)
-    telegram_notify(session, bot_api, chat_id, message)
+    print(f"{message}\n\n\n\n") 
     sys.exit()
 
 message = f"Precheck pass! Create new instance VM.Standard.A1.Flex: {ocpus} opus - {memory_in_gbs} GB"
 logging.info(message)
-telegram_notify(session, bot_api, chat_id, message)
+print(f"{message}\n\n\n\n") 
 ######################################################################################################################
 
 # Instance-detail
@@ -166,23 +145,23 @@ while to_try:
         to_try = False
         message = 'Success! Edit vnic to get public ip address'
         logging.info(message)
-        telegram_notify(session, bot_api, chat_id, message)
+        print(f"{message}\n\n\n\n") 
         # print(to_launch_instance.data)
         session.close()
     except oci.exceptions.ServiceError as e:
         if e.status == 500:
             # Out of host capacity.
             message = f"Request number: {requesting} - {e.message} Retry in {wait_s_for_retry}s"
-            #telegram_notify(session, bot_api, chat_id, message)
+            #print(f"{message}\n\n\n\n") 
         else:
             message = f"{e} Retry in {wait_s_for_retry}s"
-            telegram_notify(session, bot_api, chat_id, message)
+            print(f"{message}\n\n\n\n") 
         logging.info(message)
         time.sleep(wait_s_for_retry)
     except Exception as e:
         message = f"{e} Retry in {wait_s_for_retry}s"
         logging.info(message)
-        telegram_notify(session, bot_api, chat_id, message)
+        print(f"{message}\n\n\n\n") 
         time.sleep(wait_s_for_retry)
     except KeyboardInterrupt:
         session.close()
