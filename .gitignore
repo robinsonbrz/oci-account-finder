@@ -1,0 +1,7 @@
+.env
+keys
+*.log
+config
+*.pem
+*.txt
+.venv
