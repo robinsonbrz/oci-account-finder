@@ -5,3 +5,4 @@ config
 *.pem
 *.txt
 .venv
+!requirements.txt
